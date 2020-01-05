@@ -1,0 +1,11 @@
+--- a/chirp/ui/mainapp.py	2020-01-05 13:08:16.861992039 +0100
++++ b/chirp/ui/mainapp.py	2020-01-05 13:07:58.551988910 +0100
+@@ -1137,7 +1137,7 @@
+ 
+         query = "http://chirp.danplanet.com/query/rb/1.0/app_direct" \
+                 "?loc=%s&band=%s&dist=%s" % (loc, band, dist)
+-        print query
++        print(query)
+ 
+         # Do this in case the import process is going to take a while
+         # to make sure we process events leading up to this

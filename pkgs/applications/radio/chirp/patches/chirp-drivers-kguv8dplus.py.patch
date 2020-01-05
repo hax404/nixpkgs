@@ -1,0 +1,87 @@
+--- a/chirp/drivers/kguv8dplus.py	2020-01-05 13:14:08.924019424 +0100
++++ b/chirp/drivers/kguv8dplus.py	2020-01-05 13:19:33.401886991 +0100
+@@ -349,7 +349,7 @@
+         LOG.debug("_cs =%x", _cs)
+         LOG.debug("_rcs=%x", _rcs)
+         return (_rcs != _cs, _packet)
+- 
++
+     def decrypt(self, data):
+         result = ''
+         for i in range(len(data)-1, 0, -1):
+@@ -418,7 +418,7 @@
+             self._mmap = self._download()
+         except errors.RadioError:
+             raise
+-        except Exception, e:
++        except Exception as e:
+             raise errors.RadioError("Failed to communicate with radio: %s" % e)
+         self.process_mmap()
+ 
+@@ -435,7 +435,7 @@
+             return self._do_download(0, 32768, 64)
+         except errors.RadioError:
+             raise
+-        except Exception, e:
++        except Exception as e:
+             LOG.exception('Unknown error during download process')
+             raise errors.RadioError("Failed to communicate with radio: %s" % e)
+ 
+@@ -467,7 +467,7 @@
+             self._do_upload(0, 32768, 64)
+         except errors.RadioError:
+             raise
+-        except Exception, e:
++        except Exception as e:
+             raise errors.RadioError("Failed to communicate with radio: %s" % e)
+         return
+ 
+@@ -751,7 +751,7 @@
+                           RadioSettingValueInteger(0, 10, _settings.toalarm))
+         cfg_grp.append(rs)
+         rs = RadioSetting("roger_beep", "Roger Beep",
+-                          RadioSettingValueList(ROGER_LIST, 
++                          RadioSettingValueList(ROGER_LIST,
+                                                 ROGER_LIST[_settings.roger_beep]))
+         cfg_grp.append(rs)
+         rs = RadioSetting("power_save", "Power save",
+@@ -855,7 +855,7 @@
+                                                 SMUTESET_LIST[_settings.
+                                                               smuteset]))
+         cfg_grp.append(rs)
+-        
++
+ 		#
+         # VFO A Settings
+         #
+@@ -899,7 +899,7 @@
+         rs = RadioSetting("bcl_a", "Busy Channel Lock-out A",
+                           RadioSettingValueBoolean(_settings.bcl_a))
+         vfoa_grp.append(rs)
+-        
++
+ 		#
+         # VFO B Settings
+         #
+@@ -943,7 +943,7 @@
+         rs = RadioSetting("bcl_b", "Busy Channel Lock-out B",
+                           RadioSettingValueBoolean(_settings.bcl_b))
+         vfob_grp.append(rs)
+-        
++
+ 		#
+         # Key Settings
+         #
+@@ -1103,9 +1103,9 @@
+                             setattr(obj, setting, int(element.value)/10)
+                         else:
+                             setattr(obj, setting, element.value)
+-                except Exception, e:
++                except Exception as e:
+                     LOG.debug(element.get_name())
+                     raise
+ 
+     def _is_freq(self, element):
+-        return "rxfreq" in element.get_name() or "txoffset" in element.get_name() or "rx_start" in element.get_name() or "rx_stop" in element.get_name() or "tx_start" in element.get_name() or "tx_stop" in element.get_name()
+\ No newline at end of file
++        return "rxfreq" in element.get_name() or "txoffset" in element.get_name() or "rx_start" in element.get_name() or "rx_stop" in element.get_name() or "tx_start" in element.get_name() or "tx_stop" in element.get_name()

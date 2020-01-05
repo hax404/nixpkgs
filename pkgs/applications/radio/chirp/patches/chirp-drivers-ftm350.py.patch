@@ -1,0 +1,20 @@
+--- a/chirp/drivers/ftm350.py	2020-01-05 13:20:38.502075543 +0100
++++ b/chirp/drivers/ftm350.py	2020-01-05 13:21:04.115479449 +0100
+@@ -278,7 +278,7 @@
+             self._mmap = _clone_in(self)
+         except errors.RadioError:
+             raise
+-        except Exception, e:
++        except Exception as e:
+             raise errors.RadioError("Failed to download from radio (%s)" % e)
+         self.process_mmap()
+ 
+@@ -287,7 +287,7 @@
+             _clone_out(self)
+         except errors.RadioError:
+             raise
+-        except Exception, e:
++        except Exception as e:
+             raise errors.RadioError("Failed to upload to radio (%s)" % e)
+ 
+     def process_mmap(self):
