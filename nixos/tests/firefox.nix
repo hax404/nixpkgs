@@ -11,16 +11,19 @@ import ./make-test-python.nix ({ pkgs, esr ? false, ... }: {
       environment.systemPackages =
         (if esr then [ pkgs.firefox-esr ] else [ pkgs.firefox ])
         ++ [ pkgs.xdotool ];
+      networking.firewall.enable = false;
+      networking.useDHCP = false;
     };
 
   testScript = ''
       machine.wait_for_x()
 
       with subtest("wait until Firefox has finished loading the Valgrind docs page"):
-          machine.execute(
-              "xterm -e 'firefox file://${pkgs.valgrind.doc}/share/doc/valgrind/html/index.html' &"
-          )
-          machine.wait_for_window("Valgrind")
+          # machine.execute(
+          #     "xterm -e 'firefox https://check.torproject.org/' &"
+          # )
+          machine.execute("xterm -e 'firefox https://check.torproject.org/' &")
+          machine.wait_for_window("Firefox")
           machine.sleep(40)
 
       with subtest("Close default browser prompt"):
@@ -32,7 +35,7 @@ import ./make-test-python.nix ({ pkgs, esr ? false, ... }: {
 
       with subtest("wait until Firefox draws the developer tool panel"):
           machine.sleep(10)
-          machine.succeed("xwininfo -root -tree | grep Valgrind")
+          machine.succeed("xwininfo -root -tree | grep Firefox")
           machine.screenshot("screen")
     '';
 
