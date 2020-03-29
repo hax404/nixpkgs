@@ -22,6 +22,12 @@ in
     services.teeworlds = {
       enable = mkEnableOption "Teeworlds Server";
 
+      openPorts = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Whether to open firewall ports for Teeworlds";
+      };
+
       name = mkOption {
         type = types.nullOr types.str;
         default = null;
@@ -59,7 +65,7 @@ in
         type = types.nullOr types.str;
         default = null;
         description = ''
-          Password to access the remote console. If not set, a random generated is displayed in the server log.
+          Password to access the remote console. If not set a randomly generated one is displayed in the server log.
         '';
       };
 
@@ -83,6 +89,10 @@ in
   };
 
   config = mkIf cfg.enable {
+    networking.firewall = mkIf cfg.openPorts {
+      allowedUDPPorts = [ cfg.port ];
+    };
+
     systemd.services.teeworlds = {
       description = "Teeworlds Server";
       wantedBy = [ "multi-user.target" ];
