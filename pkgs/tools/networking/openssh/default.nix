@@ -16,6 +16,7 @@
 , libfido2
 , withFIDO ? stdenv.hostPlatform.isUnix && !stdenv.hostPlatform.isMusl
 , linkOpenssl ? true
+, withSctp ? false, lksctp-tools
 }:
 
 let
@@ -27,6 +28,11 @@ let
     name = "openssh-gssapi.patch";
     url = "https://salsa.debian.org/ssh-team/openssh/raw/debian/1%25${version}-2/debian/patches/gssapi.patch";
     sha256 = "1z1ckzimlkm1dmr9f5fqjnjg28gsqcwx6xka0klak857548d2lp2";
+  };
+
+  sctpPatch = fetchurl {
+    url = "https://dev.gentoo.org/~chutzpah/dist/openssh/openssh-${version}-sctp-1.2.patch.xz";
+    sha256 = "1z39dlc9n1l31vlpppwjzv6dwvzsnw41xr5yzzyiq6mn51qzm3mp";
   };
 
 in
@@ -58,7 +64,8 @@ stdenv.mkDerivation rec {
       # See https://github.com/openssh/openssh-portable/pull/206
       ./ssh-copy-id-fix-eof.patch
     ]
-    ++ optional withGssapiPatches (assert withKerberos; gssapiPatch);
+    ++ optional withGssapiPatches (assert withKerberos; gssapiPatch)
+    ++ optional withSctp sctpPatch;
 
   postPatch =
     # On Hydra this makes installation fail (sometimes?),
@@ -68,11 +75,12 @@ stdenv.mkDerivation rec {
     '';
 
   nativeBuildInputs = [ pkg-config ]
-    ++ optional (hpnSupport || withGssapiPatches) autoreconfHook
+    ++ optional (hpnSupport || withGssapiPatches || withSctp) autoreconfHook
     ++ optional withKerberos pkgs.kerberos.dev;
   buildInputs = [ zlib openssl libedit pam ]
     ++ optional withFIDO libfido2
-    ++ optional withKerberos kerberos;
+    ++ optional withKerberos kerberos
+    ++ optional withSctp lksctp-tools;
 
   preConfigure = ''
     # Setting LD causes `configure' and `make' to disagree about which linker
@@ -110,7 +118,8 @@ stdenv.mkDerivation rec {
     ++ optional withFIDO "--with-security-key-builtin=yes"
     ++ optional withKerberos (assert kerberos != null; "--with-kerberos5=${kerberos}")
     ++ optional stdenv.isDarwin "--disable-libutil"
-    ++ optional (!linkOpenssl) "--without-openssl";
+    ++ optional (!linkOpenssl) "--without-openssl"
+    ++ optional withSctp "--with-sctp=yes";
 
   buildFlags = [ "SSH_KEYSIGN=ssh-keysign" ];
 

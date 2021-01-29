@@ -6743,6 +6743,10 @@ in
     withGssapiPatches = true;
   });
 
+  openssh_sctp = pkgs.appendToName "with-sctp" (openssh.override {
+    withSctp = true;
+  });
+
   opensp = callPackage ../tools/text/sgml/opensp { };
 
   opentracker = callPackage ../applications/networking/p2p/opentracker { };
