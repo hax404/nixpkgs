@@ -23945,6 +23945,8 @@ in
       else null;
   };
 
+  mumble-web-proxy = callPackage ../servers/mumble-web-proxy { };
+
   mup = callPackage ../applications/audio/mup {
     autoreconfHook = buildPackages.autoreconfHook269;
   };
