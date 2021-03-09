@@ -6523,6 +6523,8 @@ in
 
   netboot = callPackage ../tools/networking/netboot {};
 
+  netbox = callPackage ../servers/web-apps/netbox { };
+
   netcat = libressl.nc;
 
   netcat-gnu = callPackage ../tools/networking/netcat { };
