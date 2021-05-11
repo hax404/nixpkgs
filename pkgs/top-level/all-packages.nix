@@ -26041,6 +26041,8 @@ in
 
   qdirstat = libsForQt5.callPackage ../applications/misc/qdirstat {};
 
+  qdmr = libsForQt5.callPackage ../applications/radio/qdmr { };
+
   qemu = callPackage ../applications/virtualization/qemu {
     inherit (darwin.apple_sdk.frameworks) CoreServices Cocoa Hypervisor;
     inherit (darwin.stubs) rez setfile;
