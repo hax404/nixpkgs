@@ -15176,6 +15176,8 @@ in
 
   gpgstats = callPackage ../tools/security/gpgstats { };
 
+  gpg-tui = callPackage ../tools/security/gpg-tui/default.nix { };
+
   gpshell = callPackage ../development/tools/misc/gpshell { };
 
   grantlee = callPackage ../development/libraries/grantlee { };
