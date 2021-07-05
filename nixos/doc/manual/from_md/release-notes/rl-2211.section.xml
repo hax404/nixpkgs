@@ -336,6 +336,13 @@
       </listitem>
       <listitem>
         <para>
+          <link xlink:href="http://www.litech.org/tayga/">TAYGA</link>,
+          an out-of-kernel stateless NAT64 implementation. Available as
+          <link linkend="opt-services.tayga.enable">services.tayga</link>.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
           <link xlink:href="https://github.com/L11R/go-autoconfig">go-autoconfig</link>,
           IMAP/SMTP autodiscover server. Available as
           <link linkend="opt-services.go-autoconfig.enable">services.go-autoconfig</link>.
