@@ -405,6 +405,7 @@ in
   unbound = handleTest ./unbound.nix {};
   unit-php = handleTest ./web-servers/unit-php.nix {};
   upnp = handleTest ./upnp.nix {};
+  uptermd = handleTest ./uptermd.nix {};
   usbguard = handleTest ./usbguard.nix {};
   uwsgi = handleTest ./uwsgi.nix {};
   v2ray = handleTest ./v2ray.nix {};
