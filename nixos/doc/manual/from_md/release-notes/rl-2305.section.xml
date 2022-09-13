@@ -69,6 +69,13 @@
       </listitem>
       <listitem>
         <para>
+          <link xlink:href="https://pixelfed.org/">Pixelfed</link>, a
+          federated image sharing application
+          <link linkend="opt-services.pixelfed.enable">services.pixelfed</link>.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
           <link xlink:href="https://gitlab.com/kop316/mmsd">mmsd</link>,
           a lower level daemon that transmits and recieves MMSes.
           Available as
