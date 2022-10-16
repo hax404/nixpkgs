@@ -71,7 +71,7 @@ import ./make-test-python.nix ({ pkgs, lib, ... }:
     # expected amount of clients. In this test, the packets from the pool are
     # directly routed towards the client. In normal cases, there would be a
     # second source NAT44 to map all clients behind one IPv4 address.
-    router = {
+    router_systemd = {
       virtualisation.vlans = [
         2 # towards server
         3 # towards client
@@ -126,6 +126,79 @@ import ./make-test-python.nix ({ pkgs, lib, ... }:
             prefixLength = 96;
           };
         };
+        useNetworkd = true;
+      };
+    };
+
+    router_nixos = {
+      boot.kernel.sysctl = {
+        "net.ipv4.ip_forward" = 1;
+        "net.ipv6.conf.all.forwarding" = 1;
+      };
+
+      virtualisation.vlans = [
+        2 # towards server
+        3 # towards client
+      ];
+
+      networking = {
+        useDHCP = false;
+        firewall.enable = false;
+        interfaces.eth1 = lib.mkForce {
+          ipv4 = {
+            addresses = [ { address = "100.64.0.1"; prefixLength = 24; } ];
+          };
+        };
+        interfaces.eth2 = lib.mkForce {
+          ipv6 = {
+            addresses = [ { address = "2001:db8::1"; prefixLength = 64; } ];
+          };
+        };
+      };
+
+      #systemd.network = {
+      #  enable = false;
+      #  networks."vlan1" = {
+      #    matchConfig.Name = "eth1";
+      #    address = [
+      #      "100.64.0.1/24"
+      #    ];
+      #    networkConfig.IPForward = true;
+      #    linkConfig.RequiredForOnline = "routable";
+      #  };
+      #  networks."vlan2" = {
+      #    matchConfig.Name = "eth2";
+      #    address = [
+      #      "2001:db8::1/64"
+      #    ];
+      #    networkConfig.IPForward = true;
+      #    linkConfig.RequiredForOnline = "routable";
+      #  };
+      #};
+
+      services.tayga = {
+        enable = true;
+        ipv4 = {
+          address = "192.0.2.0";
+          router = {
+            address = "192.0.2.1";
+          };
+          pool = {
+            address = "192.0.2.0";
+            prefixLength = 24;
+          };
+        };
+        ipv6 = {
+          address = "2001:db8::1";
+          router = {
+            address = "64:ff9b::1";
+          };
+          pool = {
+            address = "64:ff9b::";
+            prefixLength = 96;
+          };
+        };
+        useNetworkd = false;
       };
     };
 
@@ -159,20 +232,32 @@ import ./make-test-python.nix ({ pkgs, lib, ... }:
   };
 
   testScript = ''
-    # Wait for the networking to start on all machines
-    for machine in client, router, server:
+    # start client and server
+    for machine in client, server:
       machine.wait_for_unit("network-online.target")
       machine.log(machine.execute("ip addr")[1])
       machine.log(machine.execute("ip route")[1])
       machine.log(machine.execute("ip -6 route")[1])
 
-    with subtest("Wait for tayga"):
+    # test systemd-networkd and nixos-scripts based router
+    for router in router_systemd, router_nixos:
+    #for router in router_nixos, router_systemd:
+      router.start()
+      router.wait_for_unit("network-online.target")
       router.wait_for_unit("tayga.service")
+      router.log(machine.execute("ip addr")[1])
+      router.log(machine.execute("ip route")[1])
+      router.log(machine.execute("ip -6 route")[1])
 
-    with subtest("Test ICMP"):
-      client.wait_until_succeeds("ping -c 3 64:ff9b::100.64.0.2 >&2")
+      with subtest("Wait for tayga"):
+        router.wait_for_unit("tayga.service")
 
-    with subtest("Test ICMP and show a traceroute"):
-      client.wait_until_succeeds("mtr --show-ips --report-wide 64:ff9b::100.64.0.2 >&2")
+      with subtest("Test ICMP"):
+        client.wait_until_succeeds("ping -c 3 64:ff9b::100.64.0.2 >&2")
+
+      with subtest("Test ICMP and show a traceroute"):
+        client.wait_until_succeeds("mtr --show-ips --report-wide 64:ff9b::100.64.0.2 >&2")
+
+      router.shutdown()
   '';
 })

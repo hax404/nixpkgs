@@ -116,12 +116,39 @@ in
         default = "nat64";
         description = lib.mdDoc "Name of the nat64 tun device";
       };
+
+      useNetworkd = mkOption {
+        type = types.bool;
+        default = false;
+        description = lib.mdDoc "Use systemd-networkd to configure the nat64 tun device";
+      };
     };
   };
 
   config = mkIf cfg.enable {
-    systemd.network = {
-      enable = mkDefault true;
+    #networking.interfaces."${cfg.tunDevice}" = mkIf (!config.systemd.network.enable) {
+    networking.interfaces."${cfg.tunDevice}" = mkIf (!cfg.useNetworkd) {
+      virtual = true;
+      virtualType = "tun";
+      ipv4 = {
+        addresses = [
+          { address = cfg.ipv4.router.address; prefixLength = 32; }
+        ];
+        routes = [
+          { address = cfg.ipv4.pool.address; prefixLength = cfg.ipv4.pool.prefixLength; }
+        ];
+      };
+      ipv6 = {
+        addresses = [
+          { address = cfg.ipv6.router.address; prefixLength = 128; }
+        ];
+        routes = [
+          { address = cfg.ipv6.pool.address; prefixLength = cfg.ipv6.pool.prefixLength; }
+        ];
+      };
+    };
+
+    systemd.network = mkIf config.systemd.network.enable {
       netdevs."${cfg.tunDevice}" = {
         netdevConfig = {
           Kind = "tun";
@@ -171,7 +198,10 @@ in
           "AF_NETLINK"
         ];
         StateDirectory = "tayga";
-        User = "tayga";
+        DynamicUser = mkIf config.systemd.network.enable true;
+        #DynamicUser = true;
+        User = mkIf config.systemd.network.enable "tayga";
+        #User = "tayga";
         MemoryDenyWriteExecute = true;
         RestrictRealtime = true;
         RestrictSUIDSGID = true;
@@ -186,7 +216,6 @@ in
         LockPersonality = true;
         ProtectSystem = true;
         PrivateUsers = true;
-        DynamicUser = true;
         ProtectProc = "invisible";
       };
     };
