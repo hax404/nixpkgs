@@ -20,6 +20,8 @@ stdenv.mkDerivation rec {
     sha256 = "sha256-P3WOF6FKf7+ANOw6QQ3VE46rTAc5aGHgUu8OV4i0/2A=";
   };
 
+  passthru.tests.clatd = nixosTests.clatd;
+
   buildInputs = [ perlPackages.perl ];
   nativeBuildInputs = [ makeWrapper ];
 
