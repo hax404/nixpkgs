@@ -24,7 +24,7 @@ stdenv.mkDerivation {
   installTargets = "modules_install";
 
   meta = with lib; {
-    homepage = "https://www.jool.mx/";
+    homepage = "https://nicmx.github.io/Jool";
     description = "Fairly compliant SIIT and Stateful NAT64 for Linux - kernel modules";
     platforms = platforms.linux;
     license = licenses.gpl2Only;
